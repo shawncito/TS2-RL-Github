@@ -77,7 +77,9 @@ def main():
         while True:
             print("1. Registrar entrada")
             print("2. Registrar salida")
-            print("3. Salir")
+            print("3. Generar Reporte Ganancias")
+            print("4. Generar Reporte de Vehículos")
+            print("5. Salir")
             opcion = input("Seleccione una opción: ")
 
             if opcion == "1":
