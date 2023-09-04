@@ -3,20 +3,11 @@ import getpass
 from datetime import datetime
 
 # Conexión a la base de datos PostgreSQL
+conn = psycopg2.connect(database='postgres', user='postgres', password='12345', host='localhost', port='5432')
+cur = conn.cursor()
+
 def connect_to_db():
-    try:
-        user = input("Ingrese el nombre de usuario: ")
-        password = getpass.getpass("Ingrese la contraseña: ")  # Usando getpass para ocultar la contraseña
-        database = "parqueo_db"
-        conn = psycopg2.connect(
-            user=user,
-            password=password,
-            database=database
-        )
-        return conn
-    except Exception as e:
-        print("Error al conectar a la base de datos:", e)
-        return None
+    return conn
 
 # Registrar la entrada de un vehículo
 def registrar_entrada(conn):
@@ -54,6 +45,31 @@ def registrar_salida(conn):
     except Exception as e:
         print("Error al registrar la salida:", e)
 
+
+ # Generar Reporte Ganancias       
+def generar_reporte_ganancias(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) * 5.00 FROM registros WHERE fecha_salida IS NOT NULL;")
+        total_ganancias = cur.fetchone()[0]
+
+        print(f"Ganancias totales hasta la fecha: ${total_ganancias:.2f}")
+    except Exception as e:
+        print("Error al generar el reporte de ganancias:", e)
+
+# Generar Reporte de Vehículos
+def generar_reporte_vehiculos(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT marca, COUNT(*) FROM registros GROUP BY marca;")
+        resultados = cur.fetchall()
+
+        print("Reporte de Vehículos:")
+        for marca, cantidad in resultados:
+            print(f"{marca}: {cantidad}")
+    except Exception as e:
+        print("Error al generar el reporte de vehículos:", e)
+
 # Función principal
 def main():
     conn = connect_to_db()
@@ -69,6 +85,10 @@ def main():
             elif opcion == "2":
                 registrar_salida(conn)
             elif opcion == "3":
+                generar_reporte_ganancias(conn)
+            elif opcion == "4":
+                generar_reporte_vehiculos(conn)
+            elif opcion == "5":
                 conn.close()
                 print("¡Hasta luego!")
                 break
